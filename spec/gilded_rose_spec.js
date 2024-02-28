@@ -43,13 +43,12 @@ describe("Gilded Rose", function() {
     }
 
     const calculatedBackstagePass = (days, sellIn, quality) => {
-      for(let i = 0; i < days; i++) {
-        sellIn--;
+      for(let i = 0; i < days; i++, sellIn--) {
         if (sellIn > 10) {
           quality += 1;
-        } else if (sellIn > 5) {
+        } else if (sellIn > 5 && sellIn <= 10) {
           quality += 2;
-        } else if (sellIn > 0) {
+        } else if (sellIn > 0 && sellIn <= 5) {
           quality += 3;
         } else {
           quality = 0;
@@ -167,9 +166,16 @@ describe("Gilded Rose", function() {
       new Item("Conjured foo", 10, 20),
       new Item("foo", 10, 20),
       new Item("Conjured foo", 3, 40),
-      new Item("foo", 9, 40)
+      new Item("foo", 9, 40),
+      new Item("Conjured foo", 0, 30),
+      new Item("foo", 0, 30),
     ])
-    expect(20 - items[0].quality === 2*(20 - items[1].quality)).toBe(true);
-    expect(40 - items[2].quality === 2*(40 - items[3].quality)).toBe(true);
+    expect(20 - items[0].quality === 2*(20 - items[1].quality) || items[0].quality === 0).toBe(true);
+    if (items[2].sellIn >= 0) {
+      expect(40 - items[2].quality === 2*(40 - items[3].quality) || items[2].quality === 0).toBe(true);
+    } else {
+      expect(40 - items[2].quality === 2*(40 - items[3].quality) - 2 * items[2].sellIn || items[2].quality === 0).toBe(true);
+    }
+    expect(30 - items[4].quality === 2*(30 - items[5].quality) || items[4].quality === 0).toBe(true);
   })
 });

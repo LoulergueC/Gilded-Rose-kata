@@ -55,6 +55,18 @@ class Shop {
           }
         }
       }
+      if (this.items[i].name.match(/^Conjured.*/gi)) {
+        if (this.items[i].quality > 0) {
+          if (this.items[i].sellIn >= 0) {
+            this.items[i].quality = this.items[i].quality - 1;
+          } else {
+            this.items[i].quality = this.items[i].quality - 2;
+          }
+          if (this.items[i].quality < 0) {
+            this.items[i].quality = 0;
+          }
+        }
+      }
     }
 
     return this.items;
