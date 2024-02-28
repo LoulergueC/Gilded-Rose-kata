@@ -11,62 +11,31 @@ class Shop {
     this.items = items;
   }
   updateQuality() {
-    for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].name != 'Aged Brie' && this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-        if (this.items[i].quality > 0) {
-          if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-            this.items[i].quality = this.items[i].quality - 1;
-          }
-        }
-      } else {
-        if (this.items[i].quality < 50) {
-          this.items[i].quality = this.items[i].quality + 1;
-          if (this.items[i].name == 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].sellIn < 11) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1;
-              }
-            }
-            if (this.items[i].sellIn < 6) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1;
-              }
-            }
-          }
-        }
+    for (const item of this.items) {
+      const name = item.name;
+      if (name.match(/^Sulfuras.*/i)) continue;
+      
+      let qualityChange = 1;
+      let sellIn = item.sellIn;
+
+      // x2 when outdated
+      if (sellIn <= 0) qualityChange++;
+
+      // Backstage passes increase their quality depending the sellIn
+      if (name.match(/^Backstage passes.*/i)) {
+        if (sellIn <= 10) qualityChange++;
+        if (sellIn <= 5) qualityChange++;
+        if (sellIn <= 0) qualityChange = 0;
       }
-      if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-        this.items[i].sellIn = this.items[i].sellIn - 1;
-      }
-      if (this.items[i].sellIn < 0) {
-        if (this.items[i].name != 'Aged Brie') {
-          if (this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].quality > 0) {
-              if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-                this.items[i].quality = this.items[i].quality - 1;
-              }
-            }
-          } else {
-            this.items[i].quality = this.items[i].quality - this.items[i].quality;
-          }
-        } else {
-          if (this.items[i].quality < 50) {
-            this.items[i].quality = this.items[i].quality + 1;
-          }
-        }
-      }
-      if (this.items[i].name.match(/^Conjured.*/gi)) {
-        if (this.items[i].quality > 0) {
-          if (this.items[i].sellIn >= 0) {
-            this.items[i].quality = this.items[i].quality - 1;
-          } else {
-            this.items[i].quality = this.items[i].quality - 2;
-          }
-          if (this.items[i].quality < 0) {
-            this.items[i].quality = 0;
-          }
-        }
-      }
+
+      // Aged brie and backstage passes increase their quality
+      if (name.match(/^(Aged Brie|Backstage passes).*/i)) qualityChange *= -1;
+
+      // Conjured act 2* more
+      if (name.match(/^Conjured.*/i)) qualityChange *= 2;
+
+      item.sellIn--;
+      item.quality = qualityChange ? Math.min(Math.max(item.quality - qualityChange, 0), 50) : 0;
     }
 
     return this.items;
